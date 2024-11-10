@@ -13,6 +13,18 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+        
+            .logo {
+                font-size: 50px !important;
+            }
+        
+            .logo .sub {
+                font-size: 30px !important;
+            }
+        </style>
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
