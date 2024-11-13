@@ -35,7 +35,7 @@
                             <tbody>
                                 @if (count($operations) > 0)
                                     @foreach ($operations as $operation)
-                                        <tr class="class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"">
+                                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                             <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $operation->code }}</td>
                                             <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $operation->start_at }}</td>
                                             <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $operation->quantity }}</td>
@@ -56,7 +56,7 @@
                                                     <i class="bi bi-trash-fill"></i>
                                                 </a>
                                             </td>
-                                        </li>
+                                        </tr>
                                     @endforeach
                                 @else
                                     <td colspan="7" scope="row" class="px-6 py-4 text-lg font-medium text-gray-900 whitespace-nowrap dark:text-white">
