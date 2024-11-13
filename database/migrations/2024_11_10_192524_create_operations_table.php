@@ -17,10 +17,10 @@ return new class extends Migration
             $table->integer('quantity');
             $table->char('type');
             $table->integer('purchase_value');
-            $table->integer('avarage_value');
-            $table->integer('sale_value');
+            $table->integer('avarage_value')->nullable();;
+            $table->integer('sale_value')->nullable();;
             $table->dateTime('start_at');
-            $table->dateTime('end_at');
+            $table->dateTime('end_at')->nullable();;
             $table->foreignId('user_id')->nullable()->index();
             $table->timestamps();
             $table->softDeletes();

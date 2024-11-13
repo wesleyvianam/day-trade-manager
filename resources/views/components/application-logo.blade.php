@@ -21,5 +21,4 @@
     }
 </style>
 
-<h1 class="logo">4 <p class="sub">TRADER</p>
-</h1>
+<h1 class="logo">4 <p class="sub">TRADER</p></h1>
