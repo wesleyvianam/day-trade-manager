@@ -14,7 +14,6 @@ function generateCode() {
     const month = now.getMonth() + 1;
     const day = now.getDate();
 
-   
     const monthCodes = {
         1: { letter: 'G', lastDay: 30 },
         2: { letter: 'H', lastDay: 27 },
@@ -35,5 +34,39 @@ function generateCode() {
 
     return `WDO${monthLetter}${year}`;
 }
+
+function formatMonetary(number) {
+    return (number / 100).toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+}
+
+async function fetchDollar() {
+    await fetch(`https://economia.awesomeapi.com.br/last/USD-BRL`)
+    .then(response => response.json())
+    .then(data => {
+        document.querySelector('#dollarNow').textContent = data.USDBRL.bid;
+        document.querySelector('#dollarLow').textContent = data.USDBRL.low;
+        document.querySelector('#dollarHigh').textContent = data.USDBRL.high;
+    })
+    .catch(error => {
+        console.error("Erro ao buscar dados:", error);
+    });
+}
+
+function getDollar() {
+    fetch(`https://economia.awesomeapi.com.br/last/USD-BRL`)
+    .then(response => response.json())
+    .then(data => {
+        const input = document.querySelector('#purchase_dollar_value');
+        input.value = data.USDBRL.bid;
+    })
+    .catch(error => {
+        console.error("Erro ao buscar dados:", error);
+    });
+}
+
+fetchDollar();
 
 </script>

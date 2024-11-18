@@ -2,41 +2,31 @@
 
 namespace App\Models;
 
-use DateTime;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Date;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Operation extends Model
 {
-    const PURCHASED_TYPE = 'P';
-    const SOLD_TYPE = 'S';
-
     protected $fillable = [
         'code',
-        'quantity',
-        'type',
-        'purchase_value',
-        'avarage_value',
-        'sale_value',
         'start_at',
         'end_at',
         'user_id'
     ];
 
-    public static function toInteger(string $value) 
+    public static function inProgress($query)
     {
-        $value = preg_replace('/[,.]/', '', $value);
-        return intval($value);
+        return $query->whereNull('end_at');
     }
 
-    public static function toFloat($value) 
+    public function operation(): BelongsTo
     {
-        return number_format($value / 100, 2, ',', '.');
+        return $this->belongsTo(Operation::class);
     }
 
-    public static function translateDateToBRL($date) 
+    public function executions(): HasMany
     {
-        $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $date);
-        return $dateTime->format('d/m/Y');
+        return $this->hasMany(Execution::class);
     }
 }

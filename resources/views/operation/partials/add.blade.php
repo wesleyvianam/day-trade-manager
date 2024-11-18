@@ -25,7 +25,7 @@
                     name="quantity"
                     value="1"
                     required autocomplete="Quantidade" />
-        
+
                 <x-input-error :messages="$errors->get('quantity')" class="mt-2" />
             </div>
 
@@ -34,12 +34,31 @@
                 <x-text-input id="purchase_value" class="block mt-1 w-full"
                     type="text"
                     name="purchase_value"
-                    required autocomplete="Valor de Compra" 
+                    required autocomplete="Valor de Compra"
                     x-model="purchaseValue"
                     @input="purchaseValue = formatCurrency(purchaseValue)"
                 />
-        
+
                 <x-input-error :messages="$errors->get('purchase_value')" class="mt-2" />
+            </div>
+
+            <div class="w-full">
+                <x-input-label for="type" value="{{ __('type') }}" class="sr-only" />
+                <x-select-input
+                    id="type"
+                    name="type"
+                    class="w-full"
+                    :options="['P' => 'Compra', 'S' => 'Venda']"
+                />
+            </div>
+
+            <div class="w-full" x-init="getDollar()">
+                <x-input-label for="purchase_dollar_value" value="{{ __('Valor do Dólar') }}" class="sr-only" />
+                <x-text-input
+                    id="purchase_dollar_value"
+                    name="purchase_dollar_value"
+                    class="w-full"
+                />
             </div>
         </div>
 
