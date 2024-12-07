@@ -4,116 +4,73 @@
     </style>
 
     <div x-data="{ deleteId: null }">
-        <x-slot name="header">
-            <div class="flex justify-between">
-                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {{ __('Minhas operações') }}
-                </h2>
-
-                <div class="flex">
-                    <div class="mr-4 p-2 bg-green-100 text-green-800 text-sm font-bold me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-green-400 border border-green-400 flex items-center">
-                        <p id="dollarNow">0,00</p>
-                    </div>
-
-                    <div class="mr-4 p-2 bg-blue-100 text-blue-800 text-sm font-bold me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400 flex items-center">
-                        <p id="dollarHigh">0,00</p>
-                    </div>
-
-                    <div class="mr-4 p-2 bg-red-100 text-red-800 text-sm font-bold me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-red-400 border border-red-400 flex items-center">
-                        <p id="dollarLow">0,00</p>
-                    </div>
-
-                    <div class="mr-4 p-2 bg-gray-100 text-gray-800 text-sm font-bold me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-400 border border-gray-500 flex items-center">
-                        Ativos: {{ !empty($operations[0]) ? count($operations[0]->executions) : 0 }}
-                    </div>
-
-                    <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'modal-snacks')">Nova Ordem</x-primary-button>
+        <div class="py-6 px-60">
+            <div class="grid grid-cols-4 gap-6">
+                <div class="p-5 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <p class="font-medium">Valor dolar Futuro</p>
+                    <h2 id="dollarNow" class="text-xl font-bold">0,00</h2>
                 </div>
-            </div>
-        </x-slot>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900 dark:text-gray-100 w-full">
-                        @if (count($operations) > 0)
-                            @foreach ($operations as $operation)
-                                <div class="pb-3 flex justify-between">
-                                    <h1 class="text-xl font-bold text-gray-900 whitespace-nowrap dark:text-white">{{ $operation->code }}</h1>
-                                    <small class="font-medium text-gray-900 whitespace-nowrap dark:text-white">Data de inicio: {{ $operation->start_at }}</small>
-                                </div>
-                                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                        <tr>
-                                            <th class="px-6 py-3">Código</th>
-                                            <th class="px-6 py-3">Inicio / Hora</th>
-                                            <th class="px-6 py-3">Valor Compra</th>
-                                            <th class="px-6 py-3">Valor Fim</th>
-                                            <th class="px-6 py-3">Valor Médio</th>
-                                            <th class="px-6 py-3">Tipo Operação</th>
-                                            <th class="px-6 py-3">Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($operation->executions as $index => $execution)
-                                            <tr>
-                                                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">#{{ ++$index }}</td>
-                                                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $execution->start_at }}</td>
-                                                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $execution->purchase_value }}</td>
-                                                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $execution->sale_value ?: '0,00' }}</td>
-                                                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $execution->avarage_value ?: '0,00' }}</td>
-                                                <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                                    @if($execution->type === 'P') Comprado @else Vendido @endif
-                                                </td>
-                                                <td scope="row" class="px-6 py-4 text-lg flex text-gray-900 whitespace-nowrap dark:text-white">
-                                                    <a href="#"
-                                                        x-on:click.prevent="
-                                                           fetchOperation({{ $execution->id }});
-                                                           $dispatch('open-modal', 'modal-show');
-                                                        "
-                                                        id="abrirModal" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                                        <i class="bi bi-eye-fill"></i>
-                                                    </a>
+                <div class="p-5 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <p class="font-medium">Valor Médio</p>
+                    <h2 class="text-xl font-bold">{{ $medValue ?? '0,00' }}</h2>
+                </div>
 
-                                                    <a href="#" title="Editar" class="block px-4 py-2 hover:bg-gray-100"><i class="bi bi-pencil-square"></i></a>
+                <div class="p-5 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <p class="font-medium">Ordem Ativa</p>
+                    <h2 class="text-xl font-bold">{{ $open }}</h2>
+                </div>
 
-                                                    <a href="#"
-                                                       x-on:click.prevent="
-                                                           getExecutionForFinish({{ $execution->id }});
-                                                           $dispatch('open-modal', 'modal-finish');
-                                                        "
-                                                       id="abrirModal" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                                       title="Finalizar">
-                                                        <i class="bi bi-check-square-fill"></i>
-                                                    </a>
-
-                                                    <a href="#" title="Deletar"
-                                                       x-on:click.prevent="deleteId = {{ $execution->id }}; $dispatch('open-modal', 'modal-delete-execution')"
-                                                       class="block px-4 py-2 text-red-700 hover:bg-gray-100">
-                                                        <i class="bi bi-trash-fill"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            @endforeach
-                        @else
-                            <td colspan="7" scope="row" class="px-6 py-4 text-lg font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                Nenhuma operação iniciada.
-                            </td>
-                        @endif
-                    </div>
+                <div class="p-5 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <p class="font-medium">Gain</p>
+                    <h2 class="text-xl font-bold">{{ $gain }}</h2>
                 </div>
             </div>
         </div>
 
+        <div class="px-60 grid grid-cols-4 gap-6">
+            <div class="col-span-3">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    @include('operation.partials.list')
+                </div>
+            </div>
+
+            <div class="col-span-1">
+                @include('operation.partials.add')
+
+                @include('operation.partials.zerar')
+            </div>
+        </div>
+
         @include('operation.partials.delete')
-
-        @include('operation.partials.finish')
-
-        @include('operation.partials.show')
     </div>
 
-    @include('operation.partials.add');
+    @include('operation.partials.scripts');
+
+    <script>
+        const checkboxes = document.querySelectorAll('input.check-execution[type="checkbox"]');
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('click', () => {
+                const row = checkbox.closest('tr');
+
+                if (checkbox.checked) {
+                    row.classList.add('bg-yellow-100')
+                    row.classList.add('hover:bg:yellow-100')
+                } else {
+                    row.classList.remove('bg-yellow-100');
+                    row.classList.remove('hover:bg-yellow-100');
+                }
+
+                const activeCheckboxes = Array.from(checkboxes).filter(cb => cb.checked);
+                const activeIds = activeCheckboxes.map(cb => cb.value);
+
+                const ids = document.querySelector('#finish_ids');
+                ids.value = activeIds;
+
+                const quantity = document.querySelector('#quantity_finish');
+                quantity.value = activeIds.length;
+            });
+        });
+    </script>
 </x-app-layout>

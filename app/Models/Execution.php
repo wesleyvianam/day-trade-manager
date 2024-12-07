@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use DateTime;
+use DateTimeZone;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,7 +14,6 @@ class Execution extends Model
 
     protected $fillable = [
         'code',
-        'quantity',
         'type',
         'purchase_value',
         'purchase_dollar_value',
@@ -36,10 +36,16 @@ class Execution extends Model
         return number_format($value / 100, 2, ',', '.');
     }
 
+    public static function formatDollar($value): string
+    {
+        return number_format( $value / 10000, 4);
+    }
+
     public static function translateDateToBRL($date): string
     {
-        $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $date);
-        return $dateTime->format('d/m/Y');
+        $date = new DateTime($date, new DateTimeZone('UTC'));
+        $date->modify('-3 hours');
+        return $date->format('d/m/Y H:i');
     }
 
     public function operation(): BelongsTo

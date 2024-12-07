@@ -19,8 +19,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/operation/{operation}', [OperationController::class, 'destroy'])->name('operation.destroy');
     Route::get('/operation/{operation}', [OperationController::class, 'show'])->name('operation.show');
 
+    Route::get('/finish/{execution}', [ExecutionController::class, 'finish'])->name('finish.execution');
     Route::get('/execution/{execution}', [ExecutionController::class, 'show'])->name('execution.show');
+    Route::put('/finish', [ExecutionController::class, 'finish'])->name('execution.finish');
     Route::delete('/execution/{execution}', [ExecutionController::class, 'destroy'])->name('execution.destroy');
+
+    Route::post('/finish/operation/{operation}', [OperationController::class, 'finish'])->name('finish.operation');
 });
 
 require __DIR__.'/auth.php';

@@ -1,10 +1,59 @@
 <script>
 
+const valueDollar = document.querySelector('#dollar-futuro');
+
+valueDollar.addEventListener('input', () => {
+    valueDollar.value = (valueDollar.value);
+    const rawValue = valueDollar.value.replace(/\D/g, "");
+    const formattedValue = formatDollar(rawValue);
+    valueDollar.value = formattedValue;
+
+    const inputDollarFinish = document.querySelector('#finish_dollar_value');
+    inputDollarFinish.value = formattedValue;
+
+    setDollar(valueDollar.value)
+})
+
+function setDollar(dollar) {
+    dollar = dollar.replace(',', '.');
+
+    document.querySelector('#dollarNow').textContent = new Intl.NumberFormat('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(dollar * 1000);
+
+    const input = document.querySelector('#purchase_value');
+    input.value = new Intl.NumberFormat('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(dollar * 1000);
+
+    const inputFinish = document.querySelector('#finish_value');
+    inputFinish.value = new Intl.NumberFormat('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(dollar * 1000);
+
+    const purchaseDollar = document.querySelector('#purchase_dollar_value');
+    purchaseDollar.value = dollar;
+}
+
+
 function formatCurrency(value) {
     value = value.replace(/\D/g, "");
     value = (value / 100).toFixed(2) + "";
     value = value.replace(".", ",");
     value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return value;
+}
+
+function formatDollar(value) {
+    value = value.replace(/\D/g, "");
+    if (value === "") value = "0";
+    value = (parseInt(value) / 1000).toFixed(3);
+    value = value.replace(".", ",");
+    value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
     return value;
 }
 
@@ -42,31 +91,41 @@ function formatMonetary(number) {
     });
 }
 
-async function fetchDollar() {
-    await fetch(`https://economia.awesomeapi.com.br/last/USD-BRL`)
-    .then(response => response.json())
-    .then(data => {
-        document.querySelector('#dollarNow').textContent = data.USDBRL.bid;
-        document.querySelector('#dollarLow').textContent = data.USDBRL.low;
-        document.querySelector('#dollarHigh').textContent = data.USDBRL.high;
-    })
-    .catch(error => {
-        console.error("Erro ao buscar dados:", error);
-    });
-}
+// async function fetchDollar() {
+//     await fetch(`https://economia.awesomeapi.com.br/last/USD-BRL`)
+//     .then(response => response.json())
+//     .then(data => {
+//         document.querySelector('#dollarNow').textContent = new Intl.NumberFormat('pt-BR', {
+//             minimumFractionDigits: 2,
+//             maximumFractionDigits: 2
+//         }).format(data.USDBRL.bid * 1000);
+//     })
+//     .catch(error => {
+//         console.error("Erro ao buscar dados:", error);
+//     });
+// }
 
-function getDollar() {
-    fetch(`https://economia.awesomeapi.com.br/last/USD-BRL`)
-    .then(response => response.json())
-    .then(data => {
-        const input = document.querySelector('#purchase_dollar_value');
-        input.value = data.USDBRL.bid;
-    })
-    .catch(error => {
-        console.error("Erro ao buscar dados:", error);
-    });
-}
+// function getDollar() {
+//     fetch(`https://economia.awesomeapi.com.br/last/USD-BRL`)
+//     .then(response => response.json())
+//     .then(data => {
+//         const input = document.querySelector('#purchase_value');
+//         input.value = new Intl.NumberFormat('pt-BR', {
+//             minimumFractionDigits: 2,
+//             maximumFractionDigits: 2
+//         }).format(data.USDBRL.bid * 1000);
+//
+//         const inputFinish = document.querySelector('#finish_dollar_value');
+//         inputFinish.value = new Intl.NumberFormat('pt-BR', {
+//             minimumFractionDigits: 2,
+//             maximumFractionDigits: 2
+//         }).format(data.USDBRL.bid * 1000);
+//
+//         const dollar = document.querySelector('#purchase_dollar_value');
+//         dollar.value = data.USDBRL.bid;
+//     });
+// }
 
-fetchDollar();
+// fetchDollar();
 
 </script>

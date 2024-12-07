@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('executions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('operation_id')->index()->constrained()->cascadeOnDelete();
-            $table->integer('quantity');
             $table->char('type');
             $table->integer('purchase_value');
             $table->integer('purchase_dollar_value')->nullable();
