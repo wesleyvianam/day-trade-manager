@@ -82,6 +82,8 @@
     @endforeach
 @else
     <td colspan="7" scope="row" class="px-6 py-4 text-lg font-medium text-gray-900 whitespace-nowrap dark:text-white">
-        Nenhuma operação iniciada.
+        <p class="p-5">
+            Nenhuma operação iniciada.
+        </p>
     </td>
 @endif

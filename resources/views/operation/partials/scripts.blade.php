@@ -7,6 +7,7 @@ valueDollar.addEventListener('input', () => {
     const rawValue = valueDollar.value.replace(/\D/g, "");
     const formattedValue = formatDollar(rawValue);
     valueDollar.value = formattedValue;
+    saveDollar(formattedValue);
 
     const inputDollarFinish = document.querySelector('#finish_dollar_value');
     inputDollarFinish.value = formattedValue;
@@ -91,41 +92,25 @@ function formatMonetary(number) {
     });
 }
 
-// async function fetchDollar() {
-//     await fetch(`https://economia.awesomeapi.com.br/last/USD-BRL`)
-//     .then(response => response.json())
-//     .then(data => {
-//         document.querySelector('#dollarNow').textContent = new Intl.NumberFormat('pt-BR', {
-//             minimumFractionDigits: 2,
-//             maximumFractionDigits: 2
-//         }).format(data.USDBRL.bid * 1000);
-//     })
-//     .catch(error => {
-//         console.error("Erro ao buscar dados:", error);
-//     });
-// }
+function getDollar() {
+    const dollar = localStorage.getItem('dollar');
+    if (dollar) {
+        const valueDollar = document.querySelector('#dollar-futuro');
+        valueDollar.value = dollar;
 
-// function getDollar() {
-//     fetch(`https://economia.awesomeapi.com.br/last/USD-BRL`)
-//     .then(response => response.json())
-//     .then(data => {
-//         const input = document.querySelector('#purchase_value');
-//         input.value = new Intl.NumberFormat('pt-BR', {
-//             minimumFractionDigits: 2,
-//             maximumFractionDigits: 2
-//         }).format(data.USDBRL.bid * 1000);
-//
-//         const inputFinish = document.querySelector('#finish_dollar_value');
-//         inputFinish.value = new Intl.NumberFormat('pt-BR', {
-//             minimumFractionDigits: 2,
-//             maximumFractionDigits: 2
-//         }).format(data.USDBRL.bid * 1000);
-//
-//         const dollar = document.querySelector('#purchase_dollar_value');
-//         dollar.value = data.USDBRL.bid;
-//     });
-// }
+        setTimeout(() => {
+            setDollar(dollar);
+        }, 500)
+    }
+}
 
-// fetchDollar();
+function saveDollar(value) {
+    console.log('here');
+    console.log(value);
+
+    localStorage.setItem('dollar', value)
+}
+
+getDollar();
 
 </script>
