@@ -58,6 +58,51 @@ class OperationController extends Controller
         return $operation;
     }
 
+    public function history()
+    {
+        $operations = Operation::where('user_id', Auth::user()->id)
+            ->whereNotNull('end_at')
+            ->with('executions')
+            ->get();
+
+        $sumGain = [];
+        foreach ($operations as $operation) {
+            $operation->start_at = Execution::translateDateToBRL($operation->start_at);
+            $operation->end_at = Execution::translateDateToBRL($operation->end_at);
+
+            foreach ($operation->executions as $execution) {
+                if (!array_key_exists($execution->operation_id, $sumGain)) {
+                    $sumGain[$execution->operation_id] = $execution->average_value;
+                } else {
+                    $sumGain[$execution->operation_id] += $execution->average_value;
+                }
+
+                $execution->start_at = Execution::translateDateToBRL($execution->start_at);
+                $execution->end_at = Execution::translateDateToBRL($execution->end_at);
+                $execution->average_value = Execution::toFloat($execution->average_value);
+                $execution->purchase_dollar_value = Execution::formatDollar($execution->purchase_dollar_value);
+                $execution->sale_dollar_value = Execution::formatDollar($execution->sale_dollar_value);
+                $execution->purchase_value = Execution::toFloat($execution->purchase_value);
+                $execution->sale_value = Execution::toFloat($execution->sale_value);
+            }
+        }
+
+        $highGain = Execution::toFloat(max($sumGain));
+        $gainTotal = Execution::toFloat(array_sum($sumGain));
+        $midGain = Execution::toFloat(array_sum($sumGain) / count($sumGain));
+
+        $sumGain = array_map(function ($item) {
+            return Execution::toFloat($item);
+        }, $sumGain);
+
+        return view('operation.history')
+            ->with('operations', $operations)
+            ->with('gains', $sumGain)
+            ->with('totalGain', $gainTotal)
+            ->with('highGain', $highGain)
+            ->with('midGain', $midGain);
+    }
+
     public function store(Request $request)
     {
         // VERIFICA SE TEM ALGUMA OPERAÇÃO ABERTA

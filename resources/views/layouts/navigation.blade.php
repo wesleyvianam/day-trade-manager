@@ -14,14 +14,22 @@
                         {{ __('Investir') }}
                     </x-nav-link>
                 </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('operation.history')" :active="request()->routeIs('operation.history')">
+                        {{ __('Histórico') }}
+                    </x-nav-link>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <input id="dollar-futuro"
-                       type="text"
-                       class="rounded-lg w-32"
-                       value="0,00">
+                @if(request()->routeIs('operation.index'))
+                    <input id="dollar-futuro"
+                           type="text"
+                           class="rounded-lg w-32"
+                           value="0,00">
+                @endif
 
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">

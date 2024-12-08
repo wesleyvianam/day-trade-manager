@@ -38,7 +38,8 @@ class Execution extends Model
 
     public static function formatDollar($value): string
     {
-        return number_format( $value / 10000, 4);
+        $formattedNumber = $value / pow(10, 3);
+        return number_format($formattedNumber, 3, '.', '');
     }
 
     public static function translateDateToBRL($date): string
