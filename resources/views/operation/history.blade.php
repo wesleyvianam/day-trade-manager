@@ -8,7 +8,7 @@
             <div class="grid grid-cols-4 gap-6">
                 <div class="p-5 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <p class="font-medium">Operações</p>
-                    <h2 id="dollarNow" class="text-xl font-bold">{{ $operations ? count($operations) : 0 }}</h2>
+                    <h2 id="dollarNow" class="text-xl font-bold">{{ $count ?? 0 }}</h2>
                 </div>
 
                 <div class="p-5 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -30,7 +30,7 @@
 
         <div class="px-60">
             <div class="p-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                @if($operations)
+                @if($operations->count())
                     @foreach($operations as $operation)
                         <div class="border-b border-slate-200">
                             <button onclick="toggleAccordion({{ $operation->id }})" class="w-full py-5 text-slate-800">
@@ -69,8 +69,13 @@
                             </div>
                         </div>
                     @endforeach
+
+                    <!-- Paginação -->
+                    <div class="mt-5">
+                        {{ $operations->links() }}
+                    </div>
                 @else
-                    NADA A MOSTTAR
+                    <p>NADA A MOSTRAR</p>
                 @endif
 {{--                @include('operation.partials.historyList')--}}
             </div>

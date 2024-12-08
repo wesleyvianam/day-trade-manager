@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use function Symfony\Component\String\s;
 
 
 class OperationController extends Controller
@@ -63,7 +64,8 @@ class OperationController extends Controller
         $operations = Operation::where('user_id', Auth::user()->id)
             ->whereNotNull('end_at')
             ->with('executions')
-            ->get();
+            ->orderBy('start_at', 'desc')
+            ->paginate(2);
 
         $sumGain = [];
         foreach ($operations as $operation) {
@@ -87,20 +89,15 @@ class OperationController extends Controller
             }
         }
 
-        $highGain = Execution::toFloat(max($sumGain));
-        $gainTotal = Execution::toFloat(array_sum($sumGain));
-        $midGain = Execution::toFloat(array_sum($sumGain) / count($sumGain));
-
-        $sumGain = array_map(function ($item) {
-            return Execution::toFloat($item);
-        }, $sumGain);
+        [ $highGain, $gainTotal, $midGain, $sumGain, $count ] = $this->calculateSummary();
 
         return view('operation.history')
             ->with('operations', $operations)
             ->with('gains', $sumGain)
             ->with('totalGain', $gainTotal)
             ->with('highGain', $highGain)
-            ->with('midGain', $midGain);
+            ->with('midGain', $midGain)
+            ->with('count', $count);
     }
 
     public function store(Request $request)
@@ -155,5 +152,38 @@ class OperationController extends Controller
         ]);
 
         return to_route('operation.index');
+    }
+
+    private function calculateSummary()
+    {
+        $operations = Operation::where('user_id', Auth::user()->id)
+            ->whereNotNull('end_at')
+            ->with('executions')
+            ->get();
+
+        $sumGain = [];
+        foreach ($operations as $operation) {
+            foreach ($operation->executions as $execution) {
+                !array_key_exists($execution->operation_id, $sumGain)
+                    ? $sumGain[$execution->operation_id] = $execution->average_value
+                    : $sumGain[$execution->operation_id] += $execution->average_value;
+            }
+        }
+
+        $count = $operations->count();
+        $highGain = Execution::toFloat($sumGain ? max($sumGain) : 0);
+        $gainTotal = Execution::toFloat(array_sum($sumGain));
+        $midGain = Execution::toFloat(count($sumGain) ? array_sum($sumGain) / count($sumGain) : 0);
+        $sumGain = array_map(function ($item) {
+            return Execution::toFloat($item);
+        }, $sumGain);
+
+        return [
+            $highGain,
+            $gainTotal,
+            $midGain,
+            $sumGain,
+            $count
+        ];
     }
 }
