@@ -34,17 +34,17 @@
                 </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-3 gap-2">
-                <x-primary-button class="w-full flex justify-center py-3 bg-red-500 hover:bg-red-700" @click="actionType = 'zerar'">
-                    {{ __('Zerar') }}
-                </x-primary-button>
-
-                <x-primary-button class="w-full flex justify-center py-3 bg-yellow-600 hover:bg-yellow-500" @click="actionType = 'vender'">
+            <div class="mt-6 grid grid-cols-2 gap-2">
+                <x-primary-button class="w-full flex justify-center py-3 bg-gray-400 hover:bg-gray-300" @click="actionType = 'vender'">
                     {{ __('Vender') }}
                 </x-primary-button>
 
                 <x-primary-button class="w-full flex justify-center py-3 bg-green-500 hover:bg-green-400" @click="actionType = 'comprar'">
                     {{ __('Comprar') }}
+                </x-primary-button>
+
+                <x-primary-button class="col-span-2 w-full flex justify-center py-3 bg-red-500 hover:bg-red-700" @click="actionType = 'zerar'">
+                    {{ __('Zerar') }}
                 </x-primary-button>
             </div>
         </form>
@@ -54,11 +54,16 @@
 
 <script>
     document.getElementById('change-orders').addEventListener('submit', function (event) {
-        const hiddenInput = document.getElementById('finish_dollar_value');
-
-        if (!hiddenInput.value) {
+        const hiddenValue = document.getElementById('finish_dollar_value');
+        if (!hiddenValue.value) {
             event.preventDefault();
             alert('Digite o valor atual do dolar.');
+        }
+
+        const hiddenIds = document.getElementById('finish_ids');
+        if (!hiddenIds.value) {
+            event.preventDefault();
+            alert('Selecione as ordens.');
         }
     });
 </script>

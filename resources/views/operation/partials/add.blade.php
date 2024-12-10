@@ -1,5 +1,5 @@
 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-    <div class="text-gray-900 dark:text-gray-100 w-full">
+    <div class="text-gray-900 dark:text-gray-100">
         <form method="post" action="{{ route('operation.store') }}" class="p-6">
             @csrf
 
@@ -16,20 +16,20 @@
                 <div class="w-full">
                     <x-input-label for="quantity" :value="__('Quantidade')" />
                     <x-text-input id="quantity" class="block mt-1 w-full"
-                        type="number"
-                        name="quantity"
-                        value="1"
-                        required autocomplete="Quantidade" />
+                                  type="number"
+                                  name="quantity"
+                                  value="1"
+                                  required autocomplete="Quantidade" />
                 </div>
 
                 <div class="w-full" x-data="{ purchaseValue: '' }">
                     <x-input-label for="purchase_value" :value="__('(R$) Valor')" />
                     <x-text-input id="purchase_value" class="block mt-1 w-full"
-                        type="text"
-                        name="purchase_value"
-                        required autocomplete="Valor de Compra"
-                        x-model="purchaseValue"
-                        @input="purchaseValue = formatCurrency(purchaseValue)"
+                                  type="text"
+                                  name="purchase_value"
+                                  required autocomplete="Valor de Compra"
+                                  x-model="purchaseValue"
+                                  @input="purchaseValue = formatCurrency(purchaseValue)"
                     />
                 </div>
 
@@ -43,10 +43,10 @@
                     />
                 </div>
 
-                <x-text-input
+                <input type="hidden"
                     id="purchase_dollar_value"
                     name="purchase_dollar_value"
-                    class="w-full sr-only"
+                    class="block w-full sr-only"
                 />
             </div>
 

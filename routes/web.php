@@ -22,6 +22,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/finish/{execution}', [ExecutionController::class, 'finish'])->name('finish.execution');
     Route::get('/execution/{execution}', [ExecutionController::class, 'show'])->name('execution.show');
+    Route::get('/execution/{execution}', [ExecutionController::class, 'edit'])->name('execution.edit');
     Route::put('/finish', [ExecutionController::class, 'finish'])->name('execution.finish');
     Route::delete('/execution/{execution}', [ExecutionController::class, 'destroy'])->name('execution.destroy');
 

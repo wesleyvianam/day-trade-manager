@@ -23,7 +23,7 @@
                 </div>
 
                 @foreach($operation->executions as $execution)
-                    <div class="w-full pb-5 text-gray-600 grid grid-cols-10 gap-2">
+                    <div class="w-full pb-5 bg-gray-50 text-gray-600 grid grid-cols-10 gap-2 p-2">
                         <span class="col-span-2 text-left">{{ $execution->start_at }}</span>
                         <span class="col-span-2 text-left">{{ $execution->end_at }}</span>
                         <span class="col-span-1 text-center">{{ $execution->type === 'P' ? 'Comprado' : 'Vendido' }}</span>

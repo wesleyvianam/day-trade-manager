@@ -18,6 +18,11 @@ class ExecutionController
         return view('execution.show', compact('execution'));
     }
 
+    public function edit(Execution $execution): View
+    {
+        return view('execution.edit', compact('execution'));
+    }
+
     public function finish(Request $request): RedirectResponse|View
     {
         $this->orderIds = explode(',', $request->ids);

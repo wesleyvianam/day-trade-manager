@@ -21,13 +21,15 @@ class OperationController extends Controller
             ->get();
 
         $open = $totalValue = $gain = $total = 0;
+        $isSale = $isPurchase = false;
         foreach ($operation as $item) {
             $item->start_at = Execution::translateDateToBRL($item->start_at);
-            $total = count($item->executions);
             foreach ($item->executions as $execution) {
                 if ($execution->end_at === null) {
                     $open += 1;
                     $totalValue += $execution->purchase_value;
+                    if ($execution->type === 'S') $isSale = true;
+                    if ($execution->type === 'P') $isPurchase = true;
                 } else {
                     $gain += $execution->average_value;
                 }
@@ -39,13 +41,7 @@ class OperationController extends Controller
             }
         }
 
-        if ($gain < 0) {
-            $totalValueGainLess = $totalValue - abs($gain);
-        } else {
-            $totalValueGainLess = $totalValue + $gain;
-        }
-
-        $medValue = Execution::toFloat($open ? $totalValueGainLess / $total : 0);
+        $medValue = $this->getMedValue($gain, $totalValue, $isSale, $isPurchase, $open);
 
         return view('operation.index')
             ->with('operations', $operation)
@@ -152,6 +148,25 @@ class OperationController extends Controller
         ]);
 
         return to_route('operation.index');
+    }
+
+    private function getMedValue($gain, $totalValue, $isSale, $isPurchase, $open)
+    {
+        if ($isSale && $isPurchase) return 'Sem preço médio';
+
+        if ($isSale) {
+            $gain < 0
+                ? $totalValueGainLess = $totalValue - abs($gain)
+                : $totalValueGainLess = $totalValue + $gain;
+
+            return Execution::toFloat($open ? $totalValueGainLess / $open : 0);
+        }
+
+        $gain < 0
+            ? $totalValueGainLess = $totalValue + abs($gain)
+            : $totalValueGainLess = $totalValue - $gain;
+
+        return Execution::toFloat($open ? $totalValueGainLess / $open : 0);
     }
 
     private function calculateSummary()

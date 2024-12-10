@@ -16,16 +16,16 @@
                 @endif
             </div>
         </div>
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 relative overflow-visible">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                    <th class="px-6 py-3">Código</th>
+                    <th class="px-6 py-3"></th>
                     <th class="px-6 py-3">Inicio / Hora</th>
                     <th class="px-6 py-3">Valor Compra</th>
                     <th class="px-6 py-3">Valor Fim</th>
                     <th class="px-6 py-3">Ganho</th>
                     <th class="px-6 py-3">Tipo</th>
-                    <th class="px-6 py-3">Ações</th>
+                    <th class="px-6 py-3 text-right"></th>
                 </tr>
             </thead>
             <tbody>
@@ -54,26 +54,35 @@
                             <p class="{{ !$execution->end_at ? 'text-yellow-500 font-bold' : '' }}">Vendido</p>
                         @endif
                     </td>
-                    <td class="px-6 py-4 text-lg flex text-gray-900 whitespace-nowrap dark:text-white">
-                        <x-dropdown align="right" width="48">
-                            <x-slot name="trigger">
-                                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                                    <div>Ações</div>
+                    <td class="px-6 py-4 text-lg flex text-gray-500 whitespace-nowrap dark:text-white justify-end">
+                        <a href="{{ route('execution.edit', $execution->id) }}" class="block px-4 py-2">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
 
-                                    <div class="ms-1">
-                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </button>
-                            </x-slot>
+                        <a href="#" title="Deletar"
+                           x-on:click.prevent="deleteId = {{ $execution->id }}; $dispatch('open-modal', 'modal-delete-execution')"
+                           class="block px-4 py-2">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+{{--                        <x-dropdown align="right" width="48">--}}
+{{--                            <x-slot name="trigger">--}}
+{{--                                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">--}}
+{{--                                    <div>Ações</div>--}}
 
-                            <x-slot name="content">
-                                <x-dropdown-link x-on:click.prevent="deleteId = {{ $execution->id }}; $dispatch('open-modal', 'modal-delete-execution')">
-                                    {{ __('Deletar') }}
-                                </x-dropdown-link>
-                            </x-slot>
-                        </x-dropdown>
+{{--                                    <div class="ms-1">--}}
+{{--                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">--}}
+{{--                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />--}}
+{{--                                        </svg>--}}
+{{--                                    </div>--}}
+{{--                                </button>--}}
+{{--                            </x-slot>--}}
+
+{{--                            <x-slot name="content">--}}
+{{--                                <x-dropdown-link x-on:click.prevent="deleteId = {{ $execution->id }}; $dispatch('open-modal', 'modal-delete-execution')">--}}
+{{--                                    {{ __('Deletar') }}--}}
+{{--                                </x-dropdown-link>--}}
+{{--                            </x-slot>--}}
+{{--                        </x-dropdown>--}}
                     </td>
                 </tr>
             @endforeach

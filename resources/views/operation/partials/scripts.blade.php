@@ -9,9 +9,6 @@ valueDollar.addEventListener('input', () => {
     valueDollar.value = formattedValue;
     saveDollar(formattedValue);
 
-    const inputDollarFinish = document.querySelector('#finish_dollar_value');
-    inputDollarFinish.value = formattedValue;
-
     setDollar(valueDollar.value)
 })
 
@@ -34,6 +31,9 @@ function setDollar(dollar) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(dollar * 1000);
+
+    const inputDollarFinish = document.querySelector('#finish_dollar_value');
+    inputDollarFinish.value = dollar;
 
     const purchaseDollar = document.querySelector('#purchase_dollar_value');
     purchaseDollar.value = dollar;
@@ -60,9 +60,12 @@ function formatDollar(value) {
 
 function generateCode() {
     const now = new Date();
-    const year = String(now.getFullYear()).slice(-2);
     const month = now.getMonth() + 1;
     const day = now.getDate();
+
+    const year = (month === 11 && day === 30) || month === 12
+        ? String(now.getFullYear() + 1).slice(-2)
+        : String(now.getFullYear()).slice(-2);
 
     const monthCodes = {
         1: { letter: 'G', lastDay: 30 },
