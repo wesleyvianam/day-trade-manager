@@ -61,7 +61,7 @@ class OperationController extends Controller
             ->whereNotNull('end_at')
             ->with('executions')
             ->orderBy('start_at', 'desc')
-            ->paginate(2);
+            ->paginate(10);
 
         $sumGain = [];
         foreach ($operations as $operation) {
