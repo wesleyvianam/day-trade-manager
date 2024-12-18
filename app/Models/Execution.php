@@ -6,6 +6,7 @@ use DateTime;
 use DateTimeZone;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Mockery\Exception;
 
 class Execution extends Model
 {
@@ -33,6 +34,10 @@ class Execution extends Model
 
     public static function toFloat($value): string
     {
+        if (!is_numeric($value)) {
+            $value = 0;
+        }
+
         return number_format($value / 100, 2, ',', '.');
     }
 

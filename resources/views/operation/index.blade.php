@@ -36,9 +36,9 @@
             </div>
 
             <div class="col-span-1">
-                @include('operation.partials.add')
+                {{--                @include('operation.partials.add')--}}
 
-                @include('operation.partials.zerar')
+                @include('operation.partials.add')
             </div>
         </div>
 
@@ -47,30 +47,30 @@
 
     @include('operation.partials.scripts');
 
-    <script>
-        const checkboxes = document.querySelectorAll('input.check-execution[type="checkbox"]');
+    {{--    <script>--}}
+    {{--        const checkboxes = document.querySelectorAll('input.check-execution[type="checkbox"]');--}}
 
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('click', () => {
-                const row = checkbox.closest('tr');
+    {{--        checkboxes.forEach(checkbox => {--}}
+    {{--            checkbox.addEventListener('click', () => {--}}
+    {{--                const row = checkbox.closest('tr');--}}
 
-                if (checkbox.checked) {
-                    row.classList.add('bg-yellow-100')
-                    row.classList.add('hover:bg:yellow-100')
-                } else {
-                    row.classList.remove('bg-yellow-100');
-                    row.classList.remove('hover:bg-yellow-100');
-                }
+    {{--                if (checkbox.checked) {--}}
+    {{--                    row.classList.add('bg-yellow-100')--}}
+    {{--                    row.classList.add('hover:bg:yellow-100')--}}
+    {{--                } else {--}}
+    {{--                    row.classList.remove('bg-yellow-100');--}}
+    {{--                    row.classList.remove('hover:bg-yellow-100');--}}
+    {{--                }--}}
 
-                const activeCheckboxes = Array.from(checkboxes).filter(cb => cb.checked);
-                const activeIds = activeCheckboxes.map(cb => cb.value);
+    {{--                const activeCheckboxes = Array.from(checkboxes).filter(cb => cb.checked);--}}
+    {{--                const activeIds = activeCheckboxes.map(cb => cb.value);--}}
 
-                const ids = document.querySelector('#finish_ids');
-                ids.value = activeIds;
+    {{--                const ids = document.querySelector('#finish_ids');--}}
+    {{--                ids.value = activeIds;--}}
 
-                const quantity = document.querySelector('#quantity_finish');
-                quantity.value = activeIds.length;
-            });
-        });
-    </script>
+    {{--                const quantity = document.querySelector('#quantity_finish');--}}
+    {{--                quantity.value = activeIds.length;--}}
+    {{--            });--}}
+    {{--        });--}}
+    {{--    </script>--}}
 </x-app-layout>

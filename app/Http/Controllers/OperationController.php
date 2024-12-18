@@ -17,10 +17,12 @@ class OperationController extends Controller
     {
         $operation = Operation::where('user_id', Auth::user()->id)
             ->whereNull('end_at')
-            ->with('executions')
+            ->with(['executions' => function ($query) {
+                $query->orderBy('created_at', 'DESC');
+            }])
             ->get();
 
-        $open = $totalValue = $gain = $total = 0;
+        $open = $totalValue = $gain = 0;
         $isSale = $isPurchase = false;
         foreach ($operation as $item) {
             $item->start_at = Execution::translateDateToBRL($item->start_at);
@@ -98,37 +100,43 @@ class OperationController extends Controller
 
     public function store(Request $request)
     {
-        // VERIFICA SE TEM ALGUMA OPERAÇÃO ABERTA
-        $operation = Operation::whereNull('end_at')->first();
+        $operation = Operation::where('user_id', Auth::user()->id)->whereNull('end_at')->first();
+
+        if (!$operation && request()->type_action === 'zerar') {
+            return to_route('operation.index');
+        }
 
         if (!$operation) {
-            DB::transaction(function() use($request) {
-                $operation = Operation::create([
-                    'code' =>  $request->code,
-                    'start_at' => now(),
-                    'user_id' =>  Auth::user()->id,
-                ]);
+            $this->generateOperation($request);
+            return to_route('operation.index');
+        }
 
-                for ($i = 1; $i <= $request->quantity; $i++) {
-                    $operation->executions()->create([
-                        'type' => $request->type,
-                        'purchase_value' => Execution::toInteger($request->purchase_value),
-                        'purchase_dollar_value' => Execution::toInteger($request->purchase_dollar_value),
-                        'start_at' => now(),
-                    ]);
-                }
-            });
+        $orders = Execution::where('operation_id', $operation->id)->whereNull('end_at')->orderBy('start_at')->get();
+
+        // Zerar Todos
+        if ($request->type_action === 'zerar') {
+            if (!$orders) return to_route('operation.index');
+            return $this->finishAllOrders($orders, $request);
+        }
+
+        // Gera Novo / Vende / Compra
+        if ($orders->isEmpty()) {
+            $this->generateOrder($request, $operation);
+            return to_route('operation.index');
         } else {
-            DB::transaction(function() use($request, $operation) {
-                for ($i = 1; $i <= $request->quantity; $i++) {
-                    $operation->executions()->create([
-                        'type' => $request->type,
-                        'purchase_value' => Execution::toInteger($request->purchase_value),
-                        'purchase_dollar_value' => Execution::toInteger($request->purchase_dollar_value),
-                        'start_at' => now(),
-                    ]);
-                }
-            });
+            $lastOrder = $orders->first();
+
+            if ($request->type_action === 'vender') {
+                $lastOrder->type === 'P'
+                    ? $this->finishOneOrder($lastOrder, $request)
+                    : $this->generateOrder($request, $operation);
+            }
+
+            if ($request->type_action === 'comprar') {
+                $lastOrder->type === 'S'
+                    ? $this->finishOneOrder($lastOrder, $request)
+                    : $this->generateOrder($request, $operation);
+            }
         }
 
         return to_route('operation.index');
@@ -200,5 +208,73 @@ class OperationController extends Controller
             $sumGain,
             $count
         ];
+    }
+
+    private function generateOperation($request)
+    {
+        DB::transaction(function() use($request) {
+            $operation = Operation::create([
+                'code' =>  $request->code,
+                'start_at' => now(),
+                'user_id' =>  Auth::user()->id,
+            ]);
+
+            $operation->executions()->create([
+                'type' => $request->type_action === 'vender' ? 'S' : 'P',
+                'purchase_value' => Execution::toInteger($request->value),
+                'purchase_dollar_value' => Execution::toInteger($request->dollar_value),
+                'start_at' => now(),
+            ]);
+        });
+    }
+
+    private function generateOrder($request, $operation)
+    {
+        DB::transaction(function() use($request, $operation) {
+            $operation->executions()->create([
+                'type' => $request->type_action === 'vender' ? 'S' : 'P',
+                'purchase_value' => Execution::toInteger($request->value),
+                'purchase_dollar_value' => Execution::toInteger($request->dollar_value),
+                'start_at' => now(),
+            ]);
+        });
+    }
+
+    private function finishOneOrder($order, $request)
+    {
+        DB::transaction(function() use($order, $request) {
+            $order->update([
+                'end_at' => now(),
+                'sale_dollar_value' => Execution::toInteger($request->dollar_value),
+                'sale_value' => $request->value,
+                'average_value' => $this->calcGain($order->type, $order->purchase_value, $request->saleValue),
+            ]);
+        });
+    }
+
+    private function finishAllOrders($orders, $request)
+    {
+        DB::transaction(function() use($orders, $request) {
+            foreach ($orders as $order) {
+                $order->update([
+                    'end_at' => now(),
+                    'sale_dollar_value' => Execution::toInteger($request->dollar_value),
+                    'sale_value' => $request->value,
+                    'average_value' => $this->calcGain($order->type, $order->purchase_value, $request->saleValue),
+                ]);
+            }
+        });
+
+        return to_route("operation.index");
+    }
+
+
+    private function calcGain($type, $initialValue, $finalValue)
+    {
+        if ($type === Execution::PURCHASED_TYPE) {
+            return $finalValue - $initialValue;
+        } else {
+            return $initialValue - $finalValue;
+        }
     }
 }

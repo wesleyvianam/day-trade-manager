@@ -5,7 +5,7 @@ const valueDollar = document.querySelector('#dollar-futuro');
 valueDollar.addEventListener('input', () => {
     valueDollar.value = (valueDollar.value);
     const rawValue = valueDollar.value.replace(/\D/g, "");
-    const formattedValue = formatDollar(rawValue);
+    const formattedValue = formatCurrency(rawValue);
     valueDollar.value = formattedValue;
     saveDollar(formattedValue);
 
@@ -15,28 +15,13 @@ valueDollar.addEventListener('input', () => {
 function setDollar(dollar) {
     dollar = dollar.replace(',', '.');
 
-    document.querySelector('#dollarNow').textContent = new Intl.NumberFormat('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(dollar * 1000);
+    document.querySelector('#dollarNow').textContent = dollar;
 
-    const input = document.querySelector('#purchase_value');
-    input.value = new Intl.NumberFormat('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(dollar * 1000);
+    const input = document.querySelector('#value');
+    input.value = dollar;
 
-    const inputFinish = document.querySelector('#finish_value');
-    inputFinish.value = new Intl.NumberFormat('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(dollar * 1000);
-
-    const inputDollarFinish = document.querySelector('#finish_dollar_value');
-    inputDollarFinish.value = dollar;
-
-    const purchaseDollar = document.querySelector('#purchase_dollar_value');
-    purchaseDollar.value = dollar;
+    const inputDollar = document.querySelector('#dollar_value');
+    inputDollar.value = dollar;
 }
 
 

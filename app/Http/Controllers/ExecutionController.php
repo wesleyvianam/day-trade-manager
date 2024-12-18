@@ -9,7 +9,6 @@ use Illuminate\View\View;
 
 class ExecutionController
 {
-    private array $orderIds;
     private string $dollarValue;
     private string $saleValue;
 
@@ -25,11 +24,10 @@ class ExecutionController
 
     public function finish(Request $request): RedirectResponse|View
     {
-        $this->orderIds = explode(',', $request->ids);
         $this->dollarValue = Execution::toInteger($request->finish_dollar_value);
         $this->saleValue = Execution::toInteger($request->finish_value);
 
-        $orders = Execution::whereIn('id', $this->orderIds)->get();
+        $orders = Execution::whereIn('id', $this->orderIds)->orderBy('start_at', 'asc')->get();
 
         if ($request->type_action === 'zerar') {
             $this->finishOrder($orders);
