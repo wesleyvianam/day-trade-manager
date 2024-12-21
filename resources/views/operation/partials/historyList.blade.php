@@ -1,12 +1,12 @@
 @if($operations->count())
     @foreach($operations as $operation)
         <div class="border-b border-slate-200">
-            <button onclick="toggleAccordion({{ $operation->id }})" class="w-full py-5 text-slate-800">
+            <button onclick="toggleAccordion({{ $operation->id }})" class="w-full py-5 text-slate-800 dark:text-white">
                 <div class="w-full grid grid-cols-4 gap-2">
                     <span class="col-span-1 text-left">{{ $operation->code }}</span>
                     <span class="col-span-1 text-center">{{ $operation->start_at }}</span>
-                    <span class="col-span-1 text-center">{{ $operation->end_at }}</span>
-                    <span class="col-span-1 text-right {{ $gains[$operation->id] && $gains[$operation->id] > 0 ? 'text-green-500' : 'text-red-500' }} font-bold">{{ $gains[$operation->id] ?? '0,00' }}</span>
+                    <span class="col-span-1 text-center">{{ $operation->end_at  }}</span>
+                    <span class="col-span-1 text-right {{ $operation->gain > 0 ? 'text-green-500' : 'text-red-500' }} font-bold">{{ $operation->gain }}</span>
                 </div>
             </button>
 
@@ -27,11 +27,11 @@
                         <span class="col-span-2 text-left">{{ $execution->start_at }}</span>
                         <span class="col-span-2 text-left">{{ $execution->end_at }}</span>
                         <span class="col-span-1 text-center">{{ $execution->type === 'P' ? 'Comprado' : 'Vendido' }}</span>
-                        <span class="col-span-1 text-right">{{ $execution->purchase_dollar_value }}</span>
-                        <span class="col-span-1 text-right">{{ $execution->purchase_value }}</span>
-                        <span class="col-span-1 text-right">{{ $execution->sale_dollar_value }}</span>
-                        <span class="col-span-1 text-right">{{ $execution->sale_value }}</span>
-                        <span class="col-span-1 text-right {{ $execution->average_value > 0 ? 'text-green-500' : 'text-red-500' }} font-bold">{{ $execution->average_value }}</span>
+                        <span class="col-span-1 text-right">{{ $execution->start_dollar_value }}</span>
+                        <span class="col-span-1 text-right">{{ $execution->start_value }}</span>
+                        <span class="col-span-1 text-right">{{ $execution->end_dollar_value }}</span>
+                        <span class="col-span-1 text-right">{{ $execution->end_value }}</span>
+                        <span class="col-span-1 text-right {{ $execution->gain > 0 ? 'text-green-500' : 'text-red-500' }} font-bold">{{ $execution->gain }}</span>
                     </div>
                 @endforeach
             </div>

@@ -13,17 +13,17 @@
 
                 <div class="p-5 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <p class="font-medium">Valor Médio</p>
-                    <h2 class="text-xl font-bold">{{ $medValue ?? '0,00' }}</h2>
+                    <h2 class="text-xl font-bold">{{ $operations[0]->average_value ?? 0 }}</h2>
                 </div>
 
                 <div class="p-5 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <p class="font-medium">Ordem Ativa</p>
-                    <h2 class="text-xl font-bold">{{ $open }}</h2>
+                    <h2 class="text-xl font-bold">{{ $open ?? 0 }}</h2>
                 </div>
 
                 <div class="p-5 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <p class="font-medium">Gain</p>
-                    <h2 class="text-xl font-bold">{{ $gain }}</h2>
+                    <h2 class="text-xl font-bold">{{ $operations[0]->gain ?? 0 }}</h2>
                 </div>
             </div>
         </div>
@@ -36,7 +36,6 @@
             </div>
 
             <div class="col-span-1">
-                {{--                @include('operation.partials.add')--}}
 
                 @include('operation.partials.add')
             </div>
@@ -45,32 +44,5 @@
         @include('operation.partials.delete')
     </div>
 
-    @include('operation.partials.scripts');
-
-    {{--    <script>--}}
-    {{--        const checkboxes = document.querySelectorAll('input.check-execution[type="checkbox"]');--}}
-
-    {{--        checkboxes.forEach(checkbox => {--}}
-    {{--            checkbox.addEventListener('click', () => {--}}
-    {{--                const row = checkbox.closest('tr');--}}
-
-    {{--                if (checkbox.checked) {--}}
-    {{--                    row.classList.add('bg-yellow-100')--}}
-    {{--                    row.classList.add('hover:bg:yellow-100')--}}
-    {{--                } else {--}}
-    {{--                    row.classList.remove('bg-yellow-100');--}}
-    {{--                    row.classList.remove('hover:bg-yellow-100');--}}
-    {{--                }--}}
-
-    {{--                const activeCheckboxes = Array.from(checkboxes).filter(cb => cb.checked);--}}
-    {{--                const activeIds = activeCheckboxes.map(cb => cb.value);--}}
-
-    {{--                const ids = document.querySelector('#finish_ids');--}}
-    {{--                ids.value = activeIds;--}}
-
-    {{--                const quantity = document.querySelector('#quantity_finish');--}}
-    {{--                quantity.value = activeIds.length;--}}
-    {{--            });--}}
-    {{--        });--}}
-    {{--    </script>--}}
+    @include('operation.partials.scripts')
 </x-app-layout>

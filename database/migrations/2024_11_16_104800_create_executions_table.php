@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('operation_id')->index()->constrained()->cascadeOnDelete();
             $table->char('type');
-            $table->integer('purchase_value');
-            $table->integer('purchase_dollar_value')->nullable();
-            $table->integer('average_value')->nullable();
-            $table->integer('sale_value')->nullable();
-            $table->integer('sale_dollar_value')->nullable();
+            $table->integer('gain')->nullable();
+            $table->integer('start_value');
+            $table->integer('start_dollar_value')->nullable();
+            $table->integer('end_value')->nullable();
+            $table->integer('end_dollar_value')->nullable();
             $table->dateTime('start_at');
             $table->dateTime('end_at')->nullable();
             $table->timestamps();

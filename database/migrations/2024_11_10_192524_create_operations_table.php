@@ -17,6 +17,8 @@ return new class extends Migration
             $table->dateTime('start_at');
             $table->dateTime('end_at')->nullable();
             $table->foreignId('user_id')->nullable()->index();
+            $table->integer('average_value')->nullable();
+            $table->integer('gain')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

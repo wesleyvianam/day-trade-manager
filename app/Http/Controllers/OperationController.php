@@ -13,6 +13,10 @@ use function Symfony\Component\String\s;
 
 class OperationController extends Controller
 {
+    private $gain = 0;
+
+    private $medValue = 0;
+
     public function index()
     {
         $operation = Operation::where('user_id', Auth::user()->id)
@@ -22,33 +26,25 @@ class OperationController extends Controller
             }])
             ->get();
 
-        $open = $totalValue = $gain = 0;
-        $isSale = $isPurchase = false;
+        $open = $gain = 0;
         foreach ($operation as $item) {
             $item->start_at = Execution::translateDateToBRL($item->start_at);
-            foreach ($item->executions as $execution) {
-                if ($execution->end_at === null) {
-                    $open += 1;
-                    $totalValue += $execution->purchase_value;
-                    if ($execution->type === 'S') $isSale = true;
-                    if ($execution->type === 'P') $isPurchase = true;
-                } else {
-                    $gain += $execution->average_value;
-                }
+            $item->average_value = Execution::toFloat($item->average_value);
+            $item->gain = Execution::toFloat($item->gain);
 
-                $execution->average_value = Execution::toFloat($execution->average_value);
-                $execution->purchase_value = Execution::toFloat($execution->purchase_value);
-                $execution->sale_value = Execution::toFloat($execution->sale_value);
+            foreach ($item->executions as $execution) {
+                if ($execution->end_at === null) $open += 1;
+
+                $execution->start_value = Execution::toFloat($execution->start_value);
+                $execution->end_value = Execution::toFloat($execution->end_value);
+                $execution->gain = Execution::toFloat($execution->gain);
                 $execution->start_at = Execution::translateDateToBRL($execution->start_at);
             }
         }
 
-        $medValue = $this->getMedValue($gain, $totalValue, $isSale, $isPurchase, $open);
-
         return view('operation.index')
             ->with('operations', $operation)
             ->with('open', $open)
-            ->with('medValue', $medValue)
             ->with('gain', Execution::toFloat($gain));
     }
 
@@ -65,29 +61,24 @@ class OperationController extends Controller
             ->orderBy('start_at', 'desc')
             ->paginate(10);
 
-        $sumGain = [];
+        $sumGain = Execution::toFloat($operations->sum('gain'));
         foreach ($operations as $operation) {
             $operation->start_at = Execution::translateDateToBRL($operation->start_at);
             $operation->end_at = Execution::translateDateToBRL($operation->end_at);
+            $operation->gain = Execution::toFloat($operation->gain);
 
             foreach ($operation->executions as $execution) {
-                if (!array_key_exists($execution->operation_id, $sumGain)) {
-                    $sumGain[$execution->operation_id] = $execution->average_value;
-                } else {
-                    $sumGain[$execution->operation_id] += $execution->average_value;
-                }
-
                 $execution->start_at = Execution::translateDateToBRL($execution->start_at);
                 $execution->end_at = Execution::translateDateToBRL($execution->end_at);
-                $execution->average_value = Execution::toFloat($execution->average_value);
-                $execution->purchase_dollar_value = Execution::formatDollar($execution->purchase_dollar_value);
-                $execution->sale_dollar_value = Execution::formatDollar($execution->sale_dollar_value);
-                $execution->purchase_value = Execution::toFloat($execution->purchase_value);
-                $execution->sale_value = Execution::toFloat($execution->sale_value);
+                $execution->gain = Execution::toFloat($execution->gain);
+                $execution->start_dollar_value = Execution::toFloat($execution->start_dollar_value);
+                $execution->end_dollar_value = Execution::toFloat($execution->end_dollar_value);
+                $execution->start_value = Execution::toFloat($execution->start_value);
+                $execution->end_value = Execution::toFloat($execution->end_value);
             }
         }
 
-        [ $highGain, $gainTotal, $midGain, $sumGain, $count ] = $this->calculateSummary();
+        [ $highGain, $midGain, $gainTotal, $count ] = $this->calculateSummary();
 
         return view('operation.history')
             ->with('operations', $operations)
@@ -187,25 +178,18 @@ class OperationController extends Controller
         $sumGain = [];
         foreach ($operations as $operation) {
             foreach ($operation->executions as $execution) {
-                !array_key_exists($execution->operation_id, $sumGain)
-                    ? $sumGain[$execution->operation_id] = $execution->average_value
-                    : $sumGain[$execution->operation_id] += $execution->average_value;
+                $sumGain[$execution->id] = $execution->gain;
             }
         }
-
         $count = $operations->count();
         $highGain = Execution::toFloat($sumGain ? max($sumGain) : 0);
-        $gainTotal = Execution::toFloat(array_sum($sumGain));
         $midGain = Execution::toFloat(count($sumGain) ? array_sum($sumGain) / count($sumGain) : 0);
-        $sumGain = array_map(function ($item) {
-            return Execution::toFloat($item);
-        }, $sumGain);
+        $sum = Execution::toFloat(array_sum($sumGain));
 
         return [
             $highGain,
-            $gainTotal,
             $midGain,
-            $sumGain,
+            $sum,
             $count
         ];
     }
@@ -214,17 +198,12 @@ class OperationController extends Controller
     {
         DB::transaction(function() use($request) {
             $operation = Operation::create([
-                'code' =>  $request->code,
+                'code' => $request->code,
                 'start_at' => now(),
-                'user_id' =>  Auth::user()->id,
+                'user_id' => Auth::user()->id,
             ]);
 
-            $operation->executions()->create([
-                'type' => $request->type_action === 'vender' ? 'S' : 'P',
-                'purchase_value' => Execution::toInteger($request->value),
-                'purchase_dollar_value' => Execution::toInteger($request->dollar_value),
-                'start_at' => now(),
-            ]);
+            $this->generateOrder($request, $operation);
         });
     }
 
@@ -233,9 +212,16 @@ class OperationController extends Controller
         DB::transaction(function() use($request, $operation) {
             $operation->executions()->create([
                 'type' => $request->type_action === 'vender' ? 'S' : 'P',
-                'purchase_value' => Execution::toInteger($request->value),
-                'purchase_dollar_value' => Execution::toInteger($request->dollar_value),
+                'start_value' => Execution::toInteger($request->value),
+                'start_dollar_value' => Execution::toInteger($request->dollar_value),
                 'start_at' => now(),
+            ]);
+
+            [$averageValue, $gain] = $this->calcAverage($operation);
+
+            $operation->update([
+                'average_value' => $averageValue,
+                'gain' => $gain,
             ]);
         });
     }
@@ -243,38 +229,94 @@ class OperationController extends Controller
     private function finishOneOrder($order, $request)
     {
         DB::transaction(function() use($order, $request) {
+            $this->calcGain($order, $request);
+
             $order->update([
                 'end_at' => now(),
-                'sale_dollar_value' => Execution::toInteger($request->dollar_value),
-                'sale_value' => $request->value,
-                'average_value' => $this->calcGain($order->type, $order->purchase_value, $request->saleValue),
+                'end_dollar_value' => Execution::toInteger($request->dollar_value),
+                'end_value' => Execution::toInteger($request->value),
+                'gain' => $this->gain,
+            ]);
+
+            $operation = Operation::where('id', $order->operation_id)->first();
+
+            $averageValue = $this->calcAverage($operation);
+
+            $operation->update([
+                'average_value' => $averageValue,
             ]);
         });
     }
 
     private function finishAllOrders($orders, $request)
     {
-        DB::transaction(function() use($orders, $request) {
-            foreach ($orders as $order) {
-                $order->update([
-                    'end_at' => now(),
-                    'sale_dollar_value' => Execution::toInteger($request->dollar_value),
-                    'sale_value' => $request->value,
-                    'average_value' => $this->calcGain($order->type, $order->purchase_value, $request->saleValue),
-                ]);
-            }
-        });
+        foreach ($orders as $order) {
+            $this->finishOneOrder($order, $request);
+        }
 
         return to_route("operation.index");
     }
 
-
-    private function calcGain($type, $initialValue, $finalValue)
+    private function calcGain($order, $request)
     {
-        if ($type === Execution::PURCHASED_TYPE) {
-            return $finalValue - $initialValue;
+        $operation = Operation::where('id', $order->operation_id)->with('executions')->first();
+        if ($request->type_action === Execution::PURCHASED) {
+            $this->gain = $operation->average_value - Execution::toInteger($request->value);
         } else {
-            return $initialValue - $finalValue;
+            $this->gain = Execution::toInteger($request->value) - $operation->average_value;
         }
+    }
+
+    private function calcAverage($operation)
+    {
+        $orders = Execution::where('operation_id', $operation->id)->get();
+
+        $open = $orders->filter(function ($execution) {
+            return $execution->end_at === null;
+        });
+
+        $gain = $orders->map(function ($execution) {
+            if ($execution->end_at !== null) {
+                return $execution->gain;
+            }
+            return 0;
+        });
+
+        $avarageValue = $orders->map(function ($execution) {
+            return $execution->end_at === null ? $execution->start_value : 0;
+        });
+
+        if ($open->count() > 0) {
+            $soma = ($avarageValue->sum() / $open->count()) - $gain->sum();
+            return [$soma, $gain->sum()];
+        }
+
+        return [0, $gain->sum()];
+    }
+
+    private function recalculateOperation($order)
+    {
+        $operation = Operation::where('id', $order->operation_id)->with('executions')->first();
+
+        $isOpen = $operation->executions->filter(function ($execution) {
+            return is_null($execution->end_at);
+        })->isNotEmpty();
+
+        $isFinish = $operation->executions->filter(function ($execution) {
+            return $execution->end_at !== null;
+        });
+
+        $gain = $isFinish->map(function ($execution) use ($isOpen) {
+            return $execution->gain;
+        });
+
+        $averageValue = $operation->executions->map(function ($execution) {
+            return $execution->end_at === null ? $execution->start_value : 0;
+        });
+
+        $operation->update([
+            'average_value' => $averageValue,
+            'gain' => $gain->sum(),
+        ]);
     }
 }

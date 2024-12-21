@@ -13,16 +13,19 @@ class Execution extends Model
     const PURCHASED_TYPE = 'P';
     const SOLD_TYPE = 'S';
 
+    const PURCHASED = 'comprar';
+    const SALE = 'vender';
+    const FINISH = 'zerar';
+
     protected $fillable = [
-        'code',
         'type',
-        'purchase_value',
-        'purchase_dollar_value',
-        'sale_dollar_value',
-        'average_value',
-        'sale_value',
+        'start_value',
+        'start_dollar_value',
+        'end_dollar_value',
+        'end_value',
         'start_at',
         'end_at',
+        'gain',
         'operation_id'
     ];
 

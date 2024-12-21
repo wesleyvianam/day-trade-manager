@@ -11,6 +11,8 @@ class Operation extends Model
     protected $fillable = [
         'code',
         'start_at',
+        'average_value',
+        'gain',
         'end_at',
         'user_id'
     ];

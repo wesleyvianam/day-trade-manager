@@ -23,7 +23,7 @@
 
                 <div class="p-5 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <p class="font-medium">Ganho Total</p>
-                    <h2 class="text-xl {{ $totalGain > 0 ? 'text-green-500' : 'text-red-500' }} font-bold">{{  $totalGain ?? '0,00' }}</h2>
+                    <h2 class="text-xl font-bold">{{ $totalGain }}</h2>
                 </div>
             </div>
         </div>
