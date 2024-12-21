@@ -240,10 +240,11 @@ class OperationController extends Controller
 
             $operation = Operation::where('id', $order->operation_id)->first();
 
-            $averageValue = $this->calcAverage($operation);
+            [$averageValue, $gain] = $this->calcAverage($operation);
 
             $operation->update([
                 'average_value' => $averageValue,
+                'gain' => $gain,
             ]);
         });
     }
